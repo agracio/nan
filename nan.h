@@ -2589,12 +2589,16 @@ inline void SetPrototypeMethod(
 #if defined(V8_MAJOR_VERSION) && (V8_MAJOR_VERSION > 14 \
             || (V8_MAJOR_VERSION == 14 && defined(V8_MINOR_VERSION) \
             && V8_MINOR_VERSION >= 2))
+
+enum AccessControl {DEFAULT = 0};
+
 inline void SetAccessor(
     v8::Local<v8::ObjectTemplate> tpl
   , v8::Local<v8::String> name
   , GetterCallback getter
   , SetterCallback setter = 0
   , v8::Local<v8::Value> data = v8::Local<v8::Value>()
+  , enum AccessControl settings = DEFAULT
   , v8::PropertyAttribute attribute = v8::None) {
   HandleScope scope;
 
@@ -2636,6 +2640,7 @@ inline bool SetAccessor(
   , GetterCallback getter
   , SetterCallback setter = 0
   , v8::Local<v8::Value> data = v8::Local<v8::Value>()
+  , enum AccessControl settings = DEFAULT
   , v8::PropertyAttribute attribute = v8::None) {
   HandleScope scope;
 
