@@ -823,12 +823,25 @@ inline uv_loop_t* GetCurrentEventLoop() {
     , int index) {
     return object->GetAlignedPointerFromInternalField(index, 0);
   }
+  inline void* GetInternalFieldPointer(
+      v8::Local<v8::Object> object
+    , int index
+    , uint16_t embedderDataTypeTag) {
+    return object->GetAlignedPointerFromInternalField(index, embedderDataTypeTag);
+  }
 
   inline void SetInternalFieldPointer(
       v8::Local<v8::Object> object
     , int index
     , void* value) {
     object->SetAlignedPointerInInternalField(index, value, 0);
+  }
+  inline void SetInternalFieldPointer(
+      v8::Local<v8::Object> object
+    , int index
+    , void* value
+    , uint16_t embedderDataTypeTag) {
+    object->SetAlignedPointerInInternalField(index, value, embedderDataTypeTag);
   }
 #else
   inline void* GetInternalFieldPointer(
