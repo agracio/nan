@@ -275,6 +275,24 @@ inline void Persistent<T, M>::SetWeak(
     v8::Local<v8::Object> self((*self_v).As<v8::Object>());
     int count = self->InternalFieldCount();
     void *internal_fields[kInternalFieldsInWeakCallback] = {0, 0};
+#if defined(V8_MAJOR_VERSION) && (V8_MAJOR_VERSION > 14 \
+            || (V8_MAJOR_VERSION == 14 && defined(V8_MINOR_VERSION) \
+            && V8_MINOR_VERSION >= 4))
+    for (int i = 0; i < count && i < kInternalFieldsInWeakCallback; i++) {
+      internal_fields[i] = self->GetAlignedPointerFromInternalField(i, 0);
+    }
+    wcbd = new WeakCallbackInfo<P>(
+        reinterpret_cast<Persistent<v8::Value>*>(this)
+      , callback
+      , 0
+      , internal_fields[0]
+      , internal_fields[1]);
+    self->SetAlignedPointerInInternalField(0, wcbd, 0);
+    v8::PersistentBase<T>::SetWeak(
+        static_cast<WeakCallbackInfo<P>*>(0)
+      , WeakCallbackInfo<P>::template invoketwofield<true>
+      , type);
+#else
     for (int i = 0; i < count && i < kInternalFieldsInWeakCallback; i++) {
       internal_fields[i] = self->GetAlignedPointerFromInternalField(i);
     }
@@ -289,6 +307,7 @@ inline void Persistent<T, M>::SetWeak(
         static_cast<WeakCallbackInfo<P>*>(0)
       , WeakCallbackInfo<P>::template invoketwofield<true>
       , type);
+#endif
   }
 }
 #elif NODE_MODULE_VERSION > IOJS_1_1_MODULE_VERSION

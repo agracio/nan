@@ -815,7 +815,22 @@ inline uv_loop_t* GetCurrentEventLoop() {
   inline v8::Local<v8::Context> GetCurrentContext() {
     return v8::Isolate::GetCurrent()->GetCurrentContext();
   }
+#if defined(V8_MAJOR_VERSION) && (V8_MAJOR_VERSION > 14 \
+            || (V8_MAJOR_VERSION == 14 && defined(V8_MINOR_VERSION) \
+            && V8_MINOR_VERSION >= 4))
+  inline void* GetInternalFieldPointer(
+      v8::Local<v8::Object> object
+    , int index) {
+    return object->GetAlignedPointerFromInternalField(index, 0);
+  }
 
+  inline void SetInternalFieldPointer(
+      v8::Local<v8::Object> object
+    , int index
+    , void* value) {
+    object->SetAlignedPointerInInternalField(index, value, 0);
+  }
+#else
   inline void* GetInternalFieldPointer(
       v8::Local<v8::Object> object
     , int index) {
@@ -828,6 +843,7 @@ inline uv_loop_t* GetCurrentEventLoop() {
     , void* value) {
     object->SetAlignedPointerInInternalField(index, value);
   }
+#endif
 
 # define NAN_GC_CALLBACK(name)                                                 \
     void name(v8::Isolate *isolate, v8::GCType type, v8::GCCallbackFlags flags)
